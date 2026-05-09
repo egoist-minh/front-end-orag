@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Database, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useAppStore } from '@/lib/store/app-store';
 
 export default function NewKBPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
+  const { addKb } = useAppStore();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,6 +19,7 @@ export default function NewKBPage() {
     // Simulate creation request
     setTimeout(() => {
       const newId = `kb-${Date.now()}`;
+      addKb({ id: newId, name: name || 'Cơ sở tri thức mới', updatedAt: 'Vừa xong' });
       router.push(`/kb/${newId}`);
     }, 800);
   };
@@ -40,6 +44,8 @@ export default function NewKBPage() {
             type="text" 
             id="name" 
             required
+            value={name}
+            onChange={e => setName(e.target.value)}
             placeholder="VD: Tài liệu Dự án Alpha"
             className="bg-background border border-surface-variant text-on-background text-sm rounded-sm focus:ring-1 focus:ring-primary focus:border-primary block w-full p-2.5 outline-none"
           />

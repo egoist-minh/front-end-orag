@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { LayoutDashboard, Search, BrainCircuit, ChevronLeft, Database } from 'lucide-react';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { KbSidebarTitle } from '@/components/layout/SidebarTitle';
 
 export default async function KBLayout({
   children,
@@ -19,10 +20,7 @@ export default async function KBLayout({
             <ChevronLeft className="w-3.5 h-3.5" /> Back to KBs
           </Link>
           <div className="flex items-center justify-between text-primary">
-            <div className="flex items-center gap-3">
-              <Database className="w-5 h-5" />
-              <h2 className="text-base font-bold tracking-tight truncate">Cơ sở Tri thức</h2>
-            </div>
+            <KbSidebarTitle kbId={kbId} />
             <NotificationCenter />
           </div>
         </div>

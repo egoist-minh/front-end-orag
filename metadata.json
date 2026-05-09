@@ -1,6 +1,6 @@
 {
-  "name": "orag",
-  "description": "",
+  "name": "OrAG",
+  "description": "Hệ thống quản trị tri thức và tra cứu RAG (Retrieval-Augmented Generation) thông minh.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

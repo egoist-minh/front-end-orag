@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Building2, Plus } from 'lucide-react';
 import Link from 'next/link';
+import { useAppStore } from '@/lib/store/app-store';
 
 export default function NewOrgPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [name, setName] = useState('');
+  const { addOrg } = useAppStore();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -16,6 +19,7 @@ export default function NewOrgPage() {
     // Simulate creation request
     setTimeout(() => {
       const newId = `org-${Date.now()}`;
+      addOrg({ id: newId, name: name || 'Tổ chức mới', role: 'Owner', members: 1 });
       router.push(`/org/${newId}`);
     }, 800);
   };
@@ -40,6 +44,8 @@ export default function NewOrgPage() {
             type="text" 
             id="name" 
             required
+            value={name}
+            onChange={e => setName(e.target.value)}
             placeholder="VD: Cty Cổ phần ABC"
             className="bg-background border border-surface-variant text-on-background text-sm rounded-sm focus:ring-1 focus:ring-primary focus:border-primary block w-full p-2.5 outline-none"
           />

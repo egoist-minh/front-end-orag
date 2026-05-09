@@ -1,12 +1,11 @@
+'use client';
+
 import Link from 'next/link';
-import { Database, Plus } from 'lucide-react';
+import { Database, Plus, Trash2 } from 'lucide-react';
+import { useAppStore } from '@/lib/store/app-store';
 
 export default function MyKnowledgeBases() {
-  const kbs = [
-    { id: '1', name: 'Tài liệu Kỹ thuật', updatedAt: '2 giờ trước' },
-    { id: '2', name: 'Quy trình Nhân sự', updatedAt: '1 ngày trước' },
-    { id: '3', name: 'Nghiên cứu Thị trường', updatedAt: '3 ngày trước' },
-  ];
+  const { kbs, deleteKb } = useAppStore();
 
   return (
     <div className="flex-1 p-8">
@@ -25,13 +24,26 @@ export default function MyKnowledgeBases() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {kbs.map(kb => (
-          <Link href={`/kb/${kb.id}`} key={kb.id} className="group block bg-surface border border-surface-variant p-6 rounded-sm hover:border-outline transition-colors relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-surface-variant group-hover:bg-primary transition-colors"></div>
-            <h3 className="text-lg font-bold text-primary mb-1">{kb.name}</h3>
-            <div className="flex items-center gap-4 text-xs text-on-surface-variant mt-4 font-mono">
-              <span>Cập nhật: {kb.updatedAt}</span>
-            </div>
-          </Link>
+          <div key={kb.id} className="group block bg-surface border border-surface-variant rounded-sm hover:border-outline transition-colors relative overflow-hidden">
+            <Link href={`/kb/${kb.id}`} className="block p-6">
+              <div className="absolute top-0 left-0 w-1 h-full bg-surface-variant group-hover:bg-primary transition-colors"></div>
+              <h3 className="text-lg font-bold text-primary mb-1">{kb.name}</h3>
+              <div className="flex items-center gap-4 text-xs text-on-surface-variant mt-4 font-mono">
+                <span>Cập nhật: {kb.updatedAt}</span>
+              </div>
+            </Link>
+            <button 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteKb(kb.id);
+              }}
+              className="absolute top-4 right-4 p-2 text-surface-variant hover:text-error transition-colors"
+              title="Xóa Cơ sở tri thức"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         ))}
       </div>
     </div>

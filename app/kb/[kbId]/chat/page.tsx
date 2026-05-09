@@ -1,10 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Terminal, Link2, ChevronRight, FileText, Settings2, FileQuestion, BookOpen, CheckSquare, Square, Search as SearchIcon, CheckCircle2, Play } from 'lucide-react';
+import { Send, Terminal, Link2, ChevronRight, FileText, Settings2, FileQuestion, BookOpen, CheckSquare, Square, Search as SearchIcon, CheckCircle2, Play, RotateCcw } from 'lucide-react';
 import { useKbStore } from '@/lib/store/kb-store';
 
+type Message = { id: number; role: 'user' | 'assistant'; content: string; citations?: any[] };
+
+const initialMessages: Message[] = [
+  { id: 1, role: 'assistant', content: 'Chào bạn. Tôi là LLM Agent được kết nối với cơ sở tri thức này. Bạn có thể hỏi tôi bất kỳ thông tin nào và tôi sẽ tổng hợp câu trả lời dựa trên nội dung thực tế của các tài liệu. Các trích dẫn sẽ được hiển thị ở bảng bên phải.' },
+  { id: 2, role: 'user', content: 'Tóm tắt quy trình hoàn tiền theo chính sách mới nhất.' },
+  { id: 3, role: 'assistant', content: 'Theo tài liệu quy định nội bộ, quy trình hoàn tiền bao gồm 3 bước chính: \n\n1. Khách hàng gửi yêu cầu hoàn tiền qua cổng hỗ trợ trực tuyến kèm theo hóa đơn hợp lệ. [1]\n2. Bộ phận Dịch vụ Khách hàng (CS) có 24 giờ để xác minh tính chính xác của hóa đơn và nguyên nhân hoàn tiền. [2]\n3. Kế toán tiến hành chi trả trong vòng 3-5 ngày làm việc và gửi thông báo xác nhận. [3]' },
+];
+
 export default function ChatPage() {
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const {
     chatActiveTab: activeTab,
     setChatActiveTab: setActiveTab,
@@ -67,41 +76,29 @@ export default function ChatPage() {
       {/* Left Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 border-r border-surface-variant relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-surface-highest/10 via-background to-background pointer-events-none"></div>
+        {/* Chat Header with Reset Button */}
+        <div className="p-4 border-b border-surface-variant flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-primary uppercase tracking-widest">Trò chuyện</h2>
+            <button 
+                onClick={() => setMessages([initialMessages[0]])}
+                className="flex items-center gap-2 text-xs text-on-surface-variant hover:text-primary transition-colors uppercase tracking-widest font-semibold"
+            >
+                <RotateCcw className="w-3.5 h-3.5" /> Reset
+            </button>
+        </div>
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 z-10">
-          <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-sm bg-primary text-on-primary flex items-center justify-center flex-shrink-0 mt-1">
-              <Terminal className="w-4 h-4" />
+          {messages.map((message) => (
+            <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 mt-1 ${message.role === 'assistant' ? 'bg-primary text-on-primary' : 'bg-surface-highest border border-surface-variant font-mono text-xs text-primary'}`}>
+                {message.role === 'assistant' ? <Terminal className="w-4 h-4" /> : 'U'}
+              </div>
+              <div className={`rounded-sm p-4 text-sm max-w-xl leading-relaxed ${message.role === 'assistant' ? 'bg-surface border border-surface-variant text-on-background flex-1 text-left' : 'bg-surface-highest border border-surface-variant text-on-background'}`}>
+                {message.content.split('\n').map((line, i) => (
+                  <span key={i}>{line}<br/></span>
+                ))}
+              </div>
             </div>
-            <div className="bg-surface border border-surface-variant rounded-sm p-4 text-sm text-on-background flex-1 text-left leading-relaxed">
-              Chào bạn. Tôi là LLM Agent được kết nối với cơ sở tri thức này.
-              <br/><br/>
-              Bạn có thể hỏi tôi bất kỳ thông tin nào và tôi sẽ tổng hợp câu trả lời dựa trên nội dung thực tế của các tài liệu. Các trích dẫn sẽ được hiển thị ở bảng bên phải.
-            </div>
-          </div>
-          
-          {/* User Message */}
-          <div className="flex gap-4 flex-row-reverse">
-            <div className="w-8 h-8 rounded-sm bg-surface-highest border border-surface-variant flex items-center justify-center flex-shrink-0 mt-1 font-mono text-xs text-primary">
-              U
-            </div>
-            <div className="bg-surface-highest border border-surface-variant rounded-sm p-4 text-sm text-on-background max-w-xl leading-relaxed">
-              Tóm tắt quy trình hoàn tiền theo chính sách mới nhất.
-            </div>
-          </div>
-
-          {/* AI Response Example with Citations */}
-          <div className="flex gap-4">
-            <div className="w-8 h-8 rounded-sm bg-primary text-on-primary flex items-center justify-center flex-shrink-0 mt-1">
-              <Terminal className="w-4 h-4" />
-            </div>
-            <div className="bg-surface border border-surface-variant rounded-sm p-4 text-sm text-on-background flex-1 text-left leading-relaxed">
-              Theo tài liệu quy định nội bộ, quy trình hoàn tiền bao gồm 3 bước chính: <br/><br/>
-              1. Khách hàng gửi yêu cầu hoàn tiền qua cổng hỗ trợ trực tuyến kèm theo hóa đơn hợp lệ. <button className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-highest border border-surface-variant text-[10px] text-on-surface-variant hover:text-primary transition-colors hover:border-outline ml-1 align-middle">[1]</button><br/>
-              2. Bộ phận Dịch vụ Khách hàng (CS) có 24 giờ để xác minh tính chính xác của hóa đơn và nguyên nhân hoàn tiền. <button className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-highest border border-surface-variant text-[10px] text-on-surface-variant hover:text-primary transition-colors hover:border-outline ml-1 align-middle">[2]</button><br/>
-              3. Kế toán tiến hành chi trả trong vòng 3-5 ngày làm việc và gửi thông báo xác nhận. <button className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-surface-highest border border-surface-variant text-[10px] text-on-surface-variant hover:text-primary transition-colors hover:border-outline ml-1 align-middle">[3]</button>
-            </div>
-          </div>
-
+          ))}
         </div>
 
         <div className="p-4 bg-background z-10 border-t border-surface-variant">

@@ -1,18 +1,31 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import { useOrgStore } from '@/lib/store/org-store';
-import { UploadCloud, CheckCircle2, AlertCircle, FileText, Database, Cpu, Loader2, X } from 'lucide-react';
+import { useAppStore } from '@/lib/store/app-store';
+import { UploadCloud, CheckCircle2, AlertCircle, FileText, Database, Cpu, Loader2, X, Trash2 } from 'lucide-react';
 
 export default function OrgDocumentsStatus() {
+  const { orgId } = useParams() as { orgId: string };
   const { docsActiveTab: activeTab, setDocsActiveTab: setActiveTab, docType, setDocType } = useOrgStore();
+  const { orgDocs, deleteOrgDoc, orgs } = useAppStore();
+  
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const docs = orgDocs[orgId] || [];
+  const uploadedDocs = docs.filter(d => d.type === 'uploaded');
+  const processingDocs = docs.filter(d => d.type === 'processing');
+  
+  const currentOrg = orgs.find(o => o.id === orgId);
 
   return (
     <div className="flex flex-col h-full bg-background overflow-y-auto p-10 relative">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-primary tracking-tight mb-2">Tài liệu chung</h1>
+        <h1 className="text-3xl font-bold text-primary tracking-tight mb-2">
+          {currentOrg ? `Tài liệu: ${currentOrg.name}` : 'Tài liệu chung'}
+        </h1>
         <p className="text-on-surface-variant text-sm">Quản lý và tải lên các tệp dữ liệu chung của tổ chức.</p>
       </div>
 
@@ -72,7 +85,7 @@ export default function OrgDocumentsStatus() {
                 : 'text-on-surface-variant hover:text-primary border-b-2 border-transparent'
               }`}
             >
-              Đã tải lên (2)
+              Đã tải lên ({uploadedDocs.length})
             </button>
             <button 
               onClick={() => setActiveTab('processing')}
@@ -82,55 +95,68 @@ export default function OrgDocumentsStatus() {
                 : 'text-on-surface-variant hover:text-primary border-b-2 border-transparent'
               }`}
             >
-              Đang xử lý (1)
+              Đang xử lý ({processingDocs.length})
             </button>
           </div>
 
           {/* List */}
           <div className="flex flex-col">
             {activeTab === 'uploaded' ? (
-              <>
-                <div className="flex items-center justify-between py-4 border-b border-surface-variant group">
+              uploadedDocs.map(doc => (
+                <div key={doc.id} className="flex items-center justify-between py-4 border-b border-surface-variant group">
                   <div className="flex items-start gap-4">
                     <FileText className="w-5 h-5 text-on-surface-variant mt-0.5" />
                     <div>
-                      <h4 className="text-sm font-medium text-primary mb-1">Quy chế công ty 2024.pdf</h4>
-                      <div className="text-xs font-mono text-on-surface-variant">2.4 MB</div>
+                      <h4 className="text-sm font-medium text-primary mb-1">{doc.name}</h4>
+                      <div className="text-xs font-mono text-on-surface-variant">{doc.size}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-emerald-500">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span className="text-[10px] font-semibold uppercase tracking-widest mt-0.5">Đã xong</span>
+                  <div className="flex items-center gap-4">
+                    {doc.status === 'done' ? (
+                      <div className="flex items-center gap-2 text-emerald-500">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span className="text-[10px] font-semibold uppercase tracking-widest mt-0.5">Đã xong</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-error">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-[10px] font-semibold uppercase tracking-widest mt-0.5">Lỗi</span>
+                      </div>
+                    )}
+                    <button onClick={() => deleteOrgDoc(orgId, doc.id)} className="text-surface-variant hover:text-error transition-colors p-2">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center justify-between py-4 border-b border-surface-variant group">
-                  <div className="flex items-start gap-4">
-                    <FileText className="w-5 h-5 text-on-surface-variant mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-medium text-primary mb-1">Báo cáo tài chính Q1.xlsx</h4>
-                      <div className="text-xs font-mono text-on-surface-variant">4.5 MB</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-error">
-                    <AlertCircle className="w-4 h-4" />
-                    <span className="text-[10px] font-semibold uppercase tracking-widest mt-0.5">Lỗi</span>
-                  </div>
-                </div>
-              </>
+              ))
             ) : (
-              <div className="flex items-center justify-between py-4 border-b border-surface-variant group">
-                <div className="flex items-start gap-4">
-                  <FileText className="w-5 h-5 text-on-surface-variant mt-0.5" />
-                  <div>
-                    <h4 className="text-sm font-medium text-primary mb-1">Chính sách bảo mật.pdf</h4>
-                    <div className="text-xs font-mono text-on-surface-variant">5.6 MB</div>
+              processingDocs.map(doc => (
+                <div key={doc.id} className="flex items-center justify-between py-4 border-b border-surface-variant group">
+                  <div className="flex items-start gap-4">
+                    <FileText className="w-5 h-5 text-on-surface-variant mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium text-primary mb-1">{doc.name}</h4>
+                      <div className="text-xs font-mono text-on-surface-variant">{doc.size}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 text-blue-400">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-[10px] font-semibold uppercase tracking-widest mt-0.5">Đang xử lý</span>
+                    </div>
+                    <button onClick={() => deleteOrgDoc(orgId, doc.id)} className="text-surface-variant hover:text-error transition-colors p-2">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-blue-400">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-[10px] font-semibold uppercase tracking-widest mt-0.5">Đang xử lý</span>
-                </div>
-              </div>
+              ))
+            )}
+            
+            {(activeTab === 'uploaded' && uploadedDocs.length === 0) && (
+              <div className="py-8 text-center text-on-surface-variant text-sm">Chưa có tài liệu nào</div>
+            )}
+            {(activeTab === 'processing' && processingDocs.length === 0) && (
+              <div className="py-8 text-center text-on-surface-variant text-sm">Không có tài liệu nào đang xử lý</div>
             )}
           </div>
         </div>
@@ -156,7 +182,7 @@ export default function OrgDocumentsStatus() {
 
             <div>
               <div className="text-[10px] text-on-surface-variant uppercase font-semibold tracking-wider mb-2">Tổng tài liệu</div>
-              <div className="text-2xl font-mono font-medium text-primary">3</div>
+              <div className="text-2xl font-mono font-medium text-primary">{docs.length}</div>
             </div>
           </div>
 

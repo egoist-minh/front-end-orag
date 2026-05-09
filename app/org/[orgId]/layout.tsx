@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { LayoutDashboard, Search, BrainCircuit, ChevronLeft, Building2, Users } from 'lucide-react';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { OrgSidebarTitle } from '@/components/layout/SidebarTitle';
 
 export default async function OrgLayout({
   children,
@@ -19,10 +20,7 @@ export default async function OrgLayout({
             <ChevronLeft className="w-3.5 h-3.5" /> Back to Orgs
           </Link>
           <div className="flex items-center justify-between text-primary">
-            <div className="flex items-center gap-3">
-              <Building2 className="w-5 h-5" />
-              <h2 className="text-base font-bold tracking-tight truncate">Tổ chức Nhóm</h2>
-            </div>
+            <OrgSidebarTitle orgId={orgId} />
             <NotificationCenter />
           </div>
         </div>

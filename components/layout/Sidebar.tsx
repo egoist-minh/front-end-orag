@@ -9,9 +9,9 @@ export function Sidebar() {
   const pathname = usePathname();
 
   // Hide global sidebar when inside a specific KB or Org workspace
-  const isWorkspace = (pathname.includes('/kb/') || pathname.includes('/org/')) && 
+  const isWorkspace = pathname ? ((pathname.includes('/kb/') || pathname.includes('/org/')) && 
                       !pathname.includes('/kb/new') && 
-                      !pathname.includes('/org/new');
+                      !pathname.includes('/org/new')) : false;
 
   if (isWorkspace) return null;
 
@@ -28,11 +28,11 @@ export function Sidebar() {
       <nav className="flex-1 p-4 flex flex-col gap-2">
         <div className="text-xs uppercase tracking-widest font-semibold text-on-surface-variant mb-2 px-3">Hệ thống của tôi</div>
         
-        <Link href="/kb" className={`flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium transition-colors ${pathname.startsWith('/kb') ? 'bg-surface-high text-primary' : 'hover:bg-surface-high text-on-background'}`}>
+        <Link href="/kb" className={`flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium transition-colors ${pathname?.startsWith('/kb') ? 'bg-surface-high text-primary' : 'hover:bg-surface-high text-on-background'}`}>
           <Database className="w-4 h-4 text-on-surface-variant" /> Cơ sở tri thức
         </Link>
         
-        <Link href="/org" className={`flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium transition-colors ${pathname.startsWith('/org') ? 'bg-surface-high text-primary' : 'hover:bg-surface-high text-on-background'}`}>
+        <Link href="/org" className={`flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium transition-colors ${pathname?.startsWith('/org') ? 'bg-surface-high text-primary' : 'hover:bg-surface-high text-on-background'}`}>
           <Building2 className="w-4 h-4 text-on-surface-variant" /> Tổ chức
         </Link>
 
